@@ -1,24 +1,23 @@
 """Emit the post figures.
 
 Styled to sit inside the write-up rather than to stand alone: the site's ink,
-muted and rule colours, a serif face, no titles (the caption carries those), and
+muted and rule colours, a mono face, no titles (the caption carries those), and
 a white ground so they stay readable on a dark GitHub theme too.
 """
 import os
-import random
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 
 INK, MUTED, RULE = "#1a1a1a", "#767676", "#e2e2e2"
 FILL, S1, S2 = "#efefed", "#2a78d6", "#eb6834"
-SERIF = "Lora, Georgia, 'Times New Roman', serif"
+MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace"
 
 
 def svg(w, h, body, label):
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" '
         f'height="{h}" role="img" aria-label="{label}">\n'
-        f'  <style>text {{ font-family: {SERIF}; }}</style>\n'
+        f'  <style>text {{ font-family: {MONO}; }}</style>\n'
         f'  <rect x="0" y="0" width="{w}" height="{h}" fill="#ffffff"/>\n  '
         + "\n  ".join(body)
         + "\n</svg>\n"
@@ -31,60 +30,7 @@ def text(x, y, s, size=13, fill=INK, anchor="start", weight="400", style="normal
             f'font-style="{style}">{s}</text>')
 
 
-# --- 1. the two conditions ---------------------------------------------------
-# One picture: what a press does to the world in each condition.
-
-rnd = random.Random(11)
-BITS_A = [rnd.randint(0, 1) for _ in range(32)]
-BITS_B = [rnd.randint(0, 1) for _ in range(32)]
-
-CELL, GAP = 15, 2
-STRIP = 8 * (CELL + GAP) - GAP  # 134
-
-
-def state(x, y, bits):
-    """Corridor above, TV below. Agent is always at the left wall."""
-    p = []
-    for i in range(8):
-        fill = INK if i == 0 else FILL
-        p.append(f'<rect x="{x + i * (CELL + GAP)}" y="{y}" width="{CELL}" '
-                 f'height="{CELL}" fill="{fill}" rx="2"/>')
-    ty = y + CELL + 12
-    for i, b in enumerate(bits):
-        r, c = divmod(i, 8)
-        p.append(f'<rect x="{x + c * (CELL + GAP)}" y="{ty + r * (CELL + GAP)}" '
-                 f'width="{CELL}" height="{CELL}" fill="{INK if b else FILL}" rx="2"/>')
-    return p
-
-
-def panel(x, name, sub, bits_after, verdict, moved):
-    p = [text(x, 20, name, 15, INK, weight="700"), text(x, 42, sub, 13, MUTED)]
-    p += state(x, 70, BITS_A)
-    ax = x + STRIP + 16
-    mid = 70 + CELL + 12 + 2 * (CELL + GAP) - 2
-    p.append(f'<path d="M{ax} {mid} h30" stroke="{MUTED}" stroke-width="1.5" fill="none"/>')
-    p.append(f'<path d="M{ax + 24} {mid - 5} l5 5 l-5 5" stroke="{MUTED}" '
-             f'stroke-width="1.5" fill="none"/>')
-    p.append(text(ax + 15, mid - 12, "press", 12, MUTED, anchor="middle"))
-    p += state(ax + 46, 70, bits_after)
-    p.append(text(x, 208, verdict, 13, S2 if moved else MUTED,
-                  weight="700" if moved else "400"))
-    return p
-
-
-W1, H1 = 780, 224
-body = panel(58, "Frozen", "press does nothing", BITS_A, "nothing changed", False)
-body += panel(428, "Slot", "press reshuffles the TV", BITS_B, "the TV moved", True)
-# Label the left-hand state once; the other three read off it.
-body.append(text(48, 82, "position", 12, MUTED, anchor="end"))
-body.append(text(48, 132, "TV", 12, MUTED, anchor="end"))
-open(f"{OUT}/conditions.svg", "w").write(svg(
-    W1, H1, body,
-    "The agent at the left wall, before and after a press. In FROZEN nothing "
-    "changes. In SLOT the TV bits change."))
-
-
-# --- 2. what the encoder kept ------------------------------------------------
+# --- 1. what the encoder kept ------------------------------------------------
 
 GROUPS = [
     ("Tell press from wall-move", 0.5070, 0.9604),
@@ -138,7 +84,7 @@ open(f"{OUT}/detection-vs-content.svg", "w").write(svg(
     "at 0.99 but reads the bits at 0.55."))
 
 
-# --- 3. when it finds the TV -------------------------------------------------
+# --- 2. when it finds the TV -------------------------------------------------
 
 CURVE = {
     "Frozen": [0.5025, 0.489, 0.4972, 0.5093, 0.4949, 0.5093, 0.4915, 0.4907,
@@ -182,4 +128,4 @@ open(f"{OUT}/learning.svg", "w").write(svg(
     "Wall-stationary accuracy after each epoch. FROZEN stays at 0.5 throughout. "
     "SLOT sits at 0.5 for six epochs, then jumps to 0.94."))
 
-print("wrote conditions.svg, detection-vs-content.svg, learning.svg")
+print("wrote detection-vs-content.svg, learning.svg")

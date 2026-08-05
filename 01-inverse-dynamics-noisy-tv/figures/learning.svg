@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280" width="760" height="280" role="img" aria-label="Wall-stationary accuracy after each epoch. FROZEN stays at 0.5 throughout. SLOT sits at 0.5 for six epochs, then jumps to 0.94.">
-  <style>text { font-family: Lora, Georgia, 'Times New Roman', serif; }</style>
+  <style>text { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }</style>
   <rect x="0" y="0" width="760" height="280" fill="#ffffff"/>
   <line x1="104" y1="180.30769230769232" x2="636" y2="180.30769230769232" stroke="#e2e2e2" stroke-width="1" stroke-dasharray="3 4"/>
   <text x="92" y="184.30769230769232" font-size="12" fill="#767676" text-anchor="end" font-weight="400" font-style="normal">0.5  chance</text>

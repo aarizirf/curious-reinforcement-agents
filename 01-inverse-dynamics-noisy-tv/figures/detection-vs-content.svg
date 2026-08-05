@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-label="The same frozen encoder answers four questions. It detects the reshuffle at 0.99 but reads the bits at 0.55.">
-  <style>text { font-family: Lora, Georgia, 'Times New Roman', serif; }</style>
+  <style>text { font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }</style>
   <rect x="0" y="0" width="760" height="300" fill="#ffffff"/>
   <line x1="450.0" y1="36" x2="450.0" y2="258" stroke="#e2e2e2" stroke-width="1" stroke-dasharray="3 4"/>
   <text x="450.0" y="28" font-size="12" fill="#767676" text-anchor="middle" font-weight="400" font-style="normal">chance</text>
