@@ -1,70 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" width="760" height="340" role="img" aria-label="Bar chart. SLOT reaches 0.96 telling press from wall-move and 0.99 detecting a TV resample, but only 0.55 reading the TV bits.">
-  <style>
-    .surface { fill: #fcfcfb; }
-    .ink     { fill: #0b0b0b; }
-    .ink2    { fill: #52514e; }
-    .rule    { stroke: #d9d8d4; }
-    .cell    { fill: #eceae5; }
-    .cellhot { fill: #52514e; }
-    .bit0    { fill: #e4e2dc; }
-    .bit1    { fill: #52514e; }
-    .s1      { fill: #2a78d6; }
-    .s2      { fill: #eb6834; }
-    .s1s     { stroke: #2a78d6; }
-    .s2s     { stroke: #eb6834; }
-    .arrow   { stroke: #8a8985; fill: none; }
-    text { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; }
-    @media (prefers-color-scheme: dark) {
-      .surface { fill: #1a1a19; }
-      .ink     { fill: #ffffff; }
-      .ink2    { fill: #c3c2b7; }
-      .rule    { stroke: #3a3a37; }
-      .cell    { fill: #2e2e2b; }
-      .cellhot { fill: #c3c2b7; }
-      .bit0    { fill: #2e2e2b; }
-      .bit1    { fill: #c3c2b7; }
-      .s1      { fill: #3987e5; }
-      .s2      { fill: #d95926; }
-      .s1s     { stroke: #3987e5; }
-      .s2s     { stroke: #d95926; }
-      .arrow   { stroke: #7a7975; }
-    }
-  </style>
-
-  <rect class="surface" x="0" y="0" width="760" height="340"/>
-  <text class="ink" x="24" y="30" font-size="14.5" font-weight="600">What a 2-dimensional inverse-dynamics encoder keeps</text>
-  <text class="ink2" x="24" y="50" font-size="12">Test accuracy on held-out states, mean of 3 seeds. EMB_DIM = 2.</text>
-  <rect class="s1" x="430" y="41" width="10" height="10" rx="2"/>
-  <text class="ink2" x="446" y="50" font-size="12">FROZEN</text>
-  <rect class="s2" x="516" y="41" width="10" height="10" rx="2"/>
-  <text class="ink2" x="532" y="50" font-size="12">SLOT</text>
-  <line class="rule" x1="468.0" y1="68" x2="468.0" y2="308" stroke-width="1" stroke-dasharray="3 3"/>
-  <text class="ink2" x="468.0" y="62" font-size="11" text-anchor="middle">chance</text>
-  <line class="rule" x1="668.0" y1="68" x2="668.0" y2="308" stroke-width="1" stroke-dasharray="3 3"/>
-  <text class="ink2" x="668.0" y="62" font-size="11" text-anchor="middle">ceiling</text>
-  <text class="ink" x="252" y="93" font-size="12.5" text-anchor="end">Tell press from wall-move</text>
-  <text class="ink2" x="252" y="110" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">inv_wall</text>
-  <path class="s1" d="M268 78 h198.8 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-198.8 z"/>
-  <text class="ink" x="478.8" y="91" font-size="11.5" font-family="ui-monospace, monospace">0.507</text>
-  <path class="s2" d="M268 98 h380.16 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-380.16 z"/>
-  <text class="ink" x="660.1600000000001" y="111" font-size="11.5" font-family="ui-monospace, monospace">0.960</text>
-  <text class="ink" x="252" y="156" font-size="12.5" text-anchor="end">Detect the TV resampling</text>
-  <text class="ink2" x="252" y="173" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">change</text>
-  <text class="ink2" x="270" y="154" font-size="11" font-style="italic">not defined in FROZEN</text>
-  <path class="s2" d="M268 161 h392.64 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-392.64 z"/>
-  <text class="ink" x="672.64" y="174" font-size="11.5" font-family="ui-monospace, monospace">0.992</text>
-  <text class="ink" x="252" y="219" font-size="12.5" text-anchor="end">Read the TV bits — MLP</text>
-  <text class="ink2" x="252" y="236" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">mlp</text>
-  <path class="s1" d="M268 204 h211.07999999999998 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-211.07999999999998 z"/>
-  <text class="ink" x="491.08" y="217" font-size="11.5" font-family="ui-monospace, monospace">0.538</text>
-  <path class="s2" d="M268 224 h215.56000000000003 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-215.56000000000003 z"/>
-  <text class="ink" x="495.56000000000006" y="237" font-size="11.5" font-family="ui-monospace, monospace">0.549</text>
-  <text class="ink" x="252" y="282" font-size="12.5" text-anchor="end">Read the TV bits — linear</text>
-  <text class="ink2" x="252" y="299" font-size="11" text-anchor="end" font-family="ui-monospace, monospace">lin</text>
-  <path class="s1" d="M268 267 h196.8 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-196.8 z"/>
-  <text class="ink" x="476.8" y="280" font-size="11.5" font-family="ui-monospace, monospace">0.502</text>
-  <path class="s2" d="M268 287 h205.32 a4 4 0 0 1 4 4 v9 a4 4 0 0 1 -4 4 h-205.32 z"/>
-  <text class="ink" x="485.32" y="300" font-size="11.5" font-family="ui-monospace, monospace">0.523</text>
-  <line class="rule" x1="268" y1="68" x2="268" y2="308" stroke-width="1"/>
-  <text class="ink2" x="24" y="326" font-size="11.5">The encoder answers "did the TV change" almost perfectly while barely beating chance on what the TV said.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" width="760" height="300" role="img" aria-label="The same frozen encoder answers four questions. It detects the reshuffle at 0.99 but reads the bits at 0.55.">
+  <style>text { font-family: Lora, Georgia, 'Times New Roman', serif; }</style>
+  <rect x="0" y="0" width="760" height="300" fill="#ffffff"/>
+  <line x1="450.0" y1="36" x2="450.0" y2="258" stroke="#e2e2e2" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="450.0" y="28" font-size="12" fill="#767676" text-anchor="middle" font-weight="400" font-style="normal">chance</text>
+  <line x1="650" y1="36" x2="650" y2="258" stroke="#e2e2e2" stroke-width="1" stroke-dasharray="3 4"/>
+  <text x="650" y="28" font-size="12" fill="#767676" text-anchor="middle" font-weight="400" font-style="normal">ceiling</text>
+  <text x="232" y="65" font-size="13" fill="#1a1a1a" text-anchor="end" font-weight="400" font-style="normal">Tell press from wall-move</text>
+  <path d="M250 44 h199.8 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-199.8 z" fill="#2a78d6"/>
+  <text x="460.8" y="56" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.51</text>
+  <path d="M250 63 h381.16 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-381.16 z" fill="#eb6834"/>
+  <text x="642.1600000000001" y="75" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.96</text>
+  <text x="232" y="123" font-size="13" fill="#1a1a1a" text-anchor="end" font-weight="400" font-style="normal">Detect the TV reshuffling</text>
+  <path d="M250 121 h393.64 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-393.64 z" fill="#eb6834"/>
+  <text x="654.64" y="133" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.99</text>
+  <text x="232" y="181" font-size="13" fill="#1a1a1a" text-anchor="end" font-weight="400" font-style="normal">Read the TV bits, neural</text>
+  <path d="M250 160 h212.07999999999998 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-212.07999999999998 z" fill="#2a78d6"/>
+  <text x="473.08" y="172" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.54</text>
+  <path d="M250 179 h216.56000000000003 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-216.56000000000003 z" fill="#eb6834"/>
+  <text x="477.56000000000006" y="191" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.55</text>
+  <text x="232" y="239" font-size="13" fill="#1a1a1a" text-anchor="end" font-weight="400" font-style="normal">Read the TV bits, linear</text>
+  <path d="M250 218 h197.8 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-197.8 z" fill="#2a78d6"/>
+  <text x="458.8" y="230" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.50</text>
+  <path d="M250 237 h206.32 a3 3 0 0 1 3 3 v9 a3 3 0 0 1 -3 3 h-206.32 z" fill="#eb6834"/>
+  <text x="467.32" y="249" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">0.52</text>
+  <line x1="250" y1="36" x2="250" y2="258" stroke="#e2e2e2" stroke-width="1"/>
+  <rect x="250" y="275" width="9" height="9" fill="#2a78d6" rx="2"/>
+  <text x="265" y="284" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">Frozen</text>
+  <rect x="330" y="275" width="9" height="9" fill="#eb6834" rx="2"/>
+  <text x="345" y="284" font-size="12" fill="#767676" text-anchor="start" font-weight="400" font-style="normal">Slot</text>
 </svg>

@@ -1,182 +1,185 @@
-"""Emit the two post figures as standalone theme-aware SVGs."""
+"""Emit the post figures.
+
+Styled to sit inside the write-up rather than to stand alone: the site's ink,
+muted and rule colours, a serif face, no titles (the caption carries those), and
+a white ground so they stay readable on a dark GitHub theme too.
+"""
 import os
 import random
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-os.makedirs(OUT, exist_ok=True)
+OUT = os.path.dirname(os.path.abspath(__file__))
 
-STYLE = """
-  <style>
-    .surface { fill: #fcfcfb; }
-    .ink     { fill: #0b0b0b; }
-    .ink2    { fill: #52514e; }
-    .rule    { stroke: #d9d8d4; }
-    .cell    { fill: #eceae5; }
-    .cellhot { fill: #52514e; }
-    .bit0    { fill: #e4e2dc; }
-    .bit1    { fill: #52514e; }
-    .s1      { fill: #2a78d6; }
-    .s2      { fill: #eb6834; }
-    .s1s     { stroke: #2a78d6; }
-    .s2s     { stroke: #eb6834; }
-    .arrow   { stroke: #8a8985; fill: none; }
-    text { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; }
-    @media (prefers-color-scheme: dark) {
-      .surface { fill: #1a1a19; }
-      .ink     { fill: #ffffff; }
-      .ink2    { fill: #c3c2b7; }
-      .rule    { stroke: #3a3a37; }
-      .cell    { fill: #2e2e2b; }
-      .cellhot { fill: #c3c2b7; }
-      .bit0    { fill: #2e2e2b; }
-      .bit1    { fill: #c3c2b7; }
-      .s1      { fill: #3987e5; }
-      .s2      { fill: #d95926; }
-      .s1s     { stroke: #3987e5; }
-      .s2s     { stroke: #d95926; }
-      .arrow   { stroke: #7a7975; }
-    }
-  </style>
-"""
+INK, MUTED, RULE = "#1a1a1a", "#767676", "#e2e2e2"
+FILL, S1, S2 = "#efefed", "#2a78d6", "#eb6834"
+SERIF = "Lora, Georgia, 'Times New Roman', serif"
 
-# ---------------------------------------------------------------- figure 1
 
-rnd = random.Random(7)
+def svg(w, h, body, label):
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" '
+        f'height="{h}" role="img" aria-label="{label}">\n'
+        f'  <style>text {{ font-family: {SERIF}; }}</style>\n'
+        f'  <rect x="0" y="0" width="{w}" height="{h}" fill="#ffffff"/>\n  '
+        + "\n  ".join(body)
+        + "\n</svg>\n"
+    )
+
+
+def text(x, y, s, size=13, fill=INK, anchor="start", weight="400", style="normal"):
+    return (f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" '
+            f'text-anchor="{anchor}" font-weight="{weight}" '
+            f'font-style="{style}">{s}</text>')
+
+
+# --- 1. the two conditions ---------------------------------------------------
+# One picture: what a press does to the world in each condition.
+
+rnd = random.Random(11)
 BITS_A = [rnd.randint(0, 1) for _ in range(32)]
 BITS_B = [rnd.randint(0, 1) for _ in range(32)]
 
-CW, CH, BW, BH = 9, 15, 4, 15  # position cell, bit cell
+CELL, GAP = 15, 2
+STRIP = 8 * (CELL + GAP) - GAP  # 134
 
 
-def obs_glyph(x, y, pos, bits):
+def state(x, y, bits):
+    """Corridor above, TV below. Agent is always at the left wall."""
     p = []
     for i in range(8):
-        cls = "cellhot" if i == pos else "cell"
-        p.append(f'<rect class="{cls}" x="{x + i * (CW + 1)}" y="{y}" '
-                 f'width="{CW}" height="{CH}" rx="1.5"/>')
-    bx = x + 8 * (CW + 1) + 9
+        fill = INK if i == 0 else FILL
+        p.append(f'<rect x="{x + i * (CELL + GAP)}" y="{y}" width="{CELL}" '
+                 f'height="{CELL}" fill="{fill}" rx="2"/>')
+    ty = y + CELL + 12
     for i, b in enumerate(bits):
-        p.append(f'<rect class="{"bit1" if b else "bit0"}" x="{bx + i * (BW + 1)}" '
-                 f'y="{y}" width="{BW}" height="{BH}" rx="1"/>')
-    return "\n    ".join(p)
+        r, c = divmod(i, 8)
+        p.append(f'<rect x="{x + c * (CELL + GAP)}" y="{ty + r * (CELL + GAP)}" '
+                 f'width="{CELL}" height="{CELL}" fill="{INK if b else FILL}" rx="2"/>')
+    return p
 
 
-OBS_W = 8 * (CW + 1) + 9 + 32 * (BW + 1)  # ~249
-ROWS = [
-    ("FROZEN", "left",  BITS_A, BITS_A, "identical", False),
-    ("FROZEN", "press", BITS_A, BITS_A, "identical", False),
-    ("SLOT",   "left",  BITS_A, BITS_A, "identical", False),
-    ("SLOT",   "press", BITS_A, BITS_B, "TV differs", True),
-]
+def panel(x, name, sub, bits_after, verdict, moved):
+    p = [text(x, 20, name, 15, INK, weight="700"), text(x, 42, sub, 13, MUTED)]
+    p += state(x, 70, BITS_A)
+    ax = x + STRIP + 16
+    mid = 70 + CELL + 12 + 2 * (CELL + GAP) - 2
+    p.append(f'<path d="M{ax} {mid} h30" stroke="{MUTED}" stroke-width="1.5" fill="none"/>')
+    p.append(f'<path d="M{ax + 24} {mid - 5} l5 5 l-5 5" stroke="{MUTED}" '
+             f'stroke-width="1.5" fill="none"/>')
+    p.append(text(ax + 15, mid - 12, "press", 12, MUTED, anchor="middle"))
+    p += state(ax + 46, 70, bits_after)
+    p.append(text(x, 208, verdict, 13, S2 if moved else MUTED,
+                  weight="700" if moved else "400"))
+    return p
 
-W1, H1 = 800, 268
-parts = [f'<rect class="surface" x="0" y="0" width="{W1}" height="{H1}"/>']
-parts.append(f'<text class="ink2" x="24" y="26" font-size="12" font-weight="600" '
-             f'letter-spacing="0.06em">AT THE LEFT WALL, p=0</text>')
 
-x0, y0 = 146, 52
-for i, (cond, act, ba, bb, verdict, differs) in enumerate(ROWS):
-    y = y0 + i * 52
-    if i in (0, 2):
-        parts.append(f'<text class="ink" x="24" y="{y + 12}" font-size="13" '
-                     f'font-weight="600">{cond}</text>')
-    if i == 2:
-        parts.append(f'<line class="rule" x1="24" y1="{y - 16}" x2="{W1 - 24}" '
-                     f'y2="{y - 16}" stroke-width="1"/>')
-    parts.append(f'<text class="ink2" x="132" y="{y + 12}" font-size="12" '
-                 f'text-anchor="end">{act}</text>')
-    parts.append(obs_glyph(x0, y, 0, ba))
-    ax = x0 + OBS_W + 14
-    parts.append(f'<path class="arrow" d="M{ax} {y + 7.5} h22" stroke-width="1.5"/>')
-    parts.append(f'<path class="arrow" d="M{ax + 17} {y + 3.5} l4 4 l-4 4" stroke-width="1.5"/>')
-    parts.append(obs_glyph(ax + 36, y, 0, bb))
-    vx = ax + 36 + OBS_W + 16
-    cls = "s2" if differs else "ink2"
-    parts.append(f'<text class="{cls}" x="{vx}" y="{y + 12}" font-size="12" '
-                 f'font-weight="{"600" if differs else "400"}">{verdict}</text>')
+W1, H1 = 780, 224
+body = panel(58, "Frozen", "press does nothing", BITS_A, "nothing changed", False)
+body += panel(428, "Slot", "press reshuffles the TV", BITS_B, "the TV moved", True)
+# Label the left-hand state once; the other three read off it.
+body.append(text(48, 82, "position", 12, MUTED, anchor="end"))
+body.append(text(48, 132, "TV", 12, MUTED, anchor="end"))
+open(f"{OUT}/conditions.svg", "w").write(svg(
+    W1, H1, body,
+    "The agent at the left wall, before and after a press. In FROZEN nothing "
+    "changes. In SLOT the TV bits change."))
 
-parts.append(f'<text class="ink2" x="24" y="{H1 - 16}" font-size="11.5">'
-             f'one_hot(position, 8) ++ 32 TV bits. Only the last row carries any '
-             f'signal about which action was taken.</text>')
 
-svg1 = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W1} {H1}" '
-        f'width="{W1}" height="{H1}" role="img" '
-        f'aria-label="Observation pairs at the left wall. In FROZEN both left and '
-        f'press leave the observation identical. In SLOT, press changes the TV bits.">'
-        f'{STYLE}\n  ' + "\n  ".join(parts) + "\n</svg>\n")
-open(f"{OUT}/ambiguity.svg", "w").write(svg1)
-
-# ---------------------------------------------------------------- figure 2
+# --- 2. what the encoder kept ------------------------------------------------
 
 GROUPS = [
-    ("Tell press from wall-move", "inv_wall", 0.5070, 0.9604),
-    ("Detect the TV resampling", "change", None, 0.9916),
-    ("Read the TV bits — MLP", "mlp", 0.5377, 0.5489),
-    ("Read the TV bits — linear", "lin", 0.5020, 0.5233),
+    ("Tell press from wall-move", 0.5070, 0.9604),
+    ("Detect the TV reshuffling", None, 0.9916),
+    ("Read the TV bits, neural", 0.5377, 0.5489),
+    ("Read the TV bits, linear", 0.5020, 0.5233),
 ]
 
-W2, H2 = 760, 340
-LX, PX, PW = 24, 268, 400  # label x, plot x, plot width
-BARH, PAIRGAP, GROUPGAP = 17, 3, 26
-TOP = 78
+W2, H2 = 760, 300
+PX, PW, TOP = 250, 400, 44
+BARH, PAIRGAP, GROUPGAP = 15, 4, 24
 
 
-def bar(x, y, w, h, cls):
-    r = min(4, w)
-    return (f'<path class="{cls}" d="M{x} {y} h{w - r} a{r} {r} 0 0 1 {r} {r} '
-            f'v{h - 2 * r} a{r} {r} 0 0 1 {-r} {r} h{-(w - r)} z"/>')
+def bar(x, y, w, h, fill):
+    r = min(3, w)
+    return (f'<path d="M{x} {y} h{w - r} a{r} {r} 0 0 1 {r} {r} v{h - 2 * r} '
+            f'a{r} {r} 0 0 1 {-r} {r} h{-(w - r)} z" fill="{fill}"/>')
 
 
-p = [f'<rect class="surface" x="0" y="0" width="{W2}" height="{H2}"/>']
-p.append(f'<text class="ink" x="{LX}" y="30" font-size="14.5" font-weight="600">'
-         f'What a 2-dimensional inverse-dynamics encoder keeps</text>')
-p.append(f'<text class="ink2" x="{LX}" y="50" font-size="12">'
-         f'Test accuracy on held-out states, mean of 3 seeds. EMB_DIM = 2.</text>')
-
-# legend
-p.append(f'<rect class="s1" x="430" y="41" width="10" height="10" rx="2"/>')
-p.append(f'<text class="ink2" x="446" y="50" font-size="12">FROZEN</text>')
-p.append(f'<rect class="s2" x="516" y="41" width="10" height="10" rx="2"/>')
-p.append(f'<text class="ink2" x="532" y="50" font-size="12">SLOT</text>')
-
+b = []
 block = BARH * 2 + PAIRGAP + GROUPGAP
 plot_h = len(GROUPS) * block - GROUPGAP
 
-# chance + ceiling guides
-for frac, lab in ((0.5, "chance"), (1.0, "ceiling")):
-    gx = PX + PW * frac
-    p.append(f'<line class="rule" x1="{gx}" y1="{TOP - 10}" x2="{gx}" '
-             f'y2="{TOP + plot_h + 4}" stroke-width="1" stroke-dasharray="3 3"/>')
-    p.append(f'<text class="ink2" x="{gx}" y="{TOP - 16}" font-size="11" '
-             f'text-anchor="middle">{lab}</text>')
+for x, lab in ((PX + PW * 0.5, "chance"), (PX + PW, "ceiling")):
+    b.append(f'<line x1="{x}" y1="{TOP - 8}" x2="{x}" y2="{TOP + plot_h + 6}" '
+             f'stroke="{RULE}" stroke-width="1" stroke-dasharray="3 4"/>')
+    b.append(text(x, TOP - 16, lab, 12, MUTED, anchor="middle"))
 
-for i, (label, col, frozen, slot) in enumerate(GROUPS):
+for i, (label, frozen, slot) in enumerate(GROUPS):
     gy = TOP + i * block
-    p.append(f'<text class="ink" x="{PX - 16}" y="{gy + 15}" font-size="12.5" '
-             f'text-anchor="end">{label}</text>')
-    p.append(f'<text class="ink2" x="{PX - 16}" y="{gy + 32}" font-size="11" '
-             f'text-anchor="end" font-family="ui-monospace, monospace">{col}</text>')
-    for j, (val, cls) in enumerate(((frozen, "s1"), (slot, "s2"))):
+    b.append(text(PX - 18, gy + 21, label, 13, INK, anchor="end"))
+    for j, (val, fill) in enumerate(((frozen, S1), (slot, S2))):
         y = gy + j * (BARH + PAIRGAP)
         if val is None:
-            p.append(f'<text class="ink2" x="{PX + 2}" y="{y + 13}" font-size="11" '
-                     f'font-style="italic">not defined in FROZEN</text>')
             continue
-        p.append(bar(PX, y, PW * val, BARH, cls))
-        p.append(f'<text class="ink" x="{PX + PW * val + 8}" y="{y + 13}" '
-                 f'font-size="11.5" font-family="ui-monospace, monospace">{val:.3f}</text>')
+        b.append(bar(PX, y, PW * val, BARH, fill))
+        b.append(text(PX + PW * val + 8, y + 12, f"{val:.2f}", 12, MUTED))
 
-p.append(f'<line class="rule" x1="{PX}" y1="{TOP - 10}" x2="{PX}" '
-         f'y2="{TOP + plot_h + 4}" stroke-width="1"/>')
-p.append(f'<text class="ink2" x="{LX}" y="{H2 - 14}" font-size="11.5">'
-         f'The encoder answers "did the TV change" almost perfectly while barely '
-         f'beating chance on what the TV said.</text>')
+b.append(f'<line x1="{PX}" y1="{TOP - 8}" x2="{PX}" y2="{TOP + plot_h + 6}" '
+         f'stroke="{RULE}" stroke-width="1"/>')
 
-svg2 = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W2} {H2}" '
-        f'width="{W2}" height="{H2}" role="img" '
-        f'aria-label="Bar chart. SLOT reaches 0.96 telling press from wall-move and '
-        f'0.99 detecting a TV resample, but only 0.55 reading the TV bits.">'
-        f'{STYLE}\n  ' + "\n  ".join(p) + "\n</svg>\n")
-open(f"{OUT}/detection-vs-content.svg", "w").write(svg2)
+ly = TOP + plot_h + 32
+b.append(f'<rect x="{PX}" y="{ly - 9}" width="9" height="9" fill="{S1}" rx="2"/>')
+b.append(text(PX + 15, ly, "Frozen", 12, MUTED))
+b.append(f'<rect x="{PX + 80}" y="{ly - 9}" width="9" height="9" fill="{S2}" rx="2"/>')
+b.append(text(PX + 95, ly, "Slot", 12, MUTED))
 
-print("wrote", OUT)
+open(f"{OUT}/detection-vs-content.svg", "w").write(svg(
+    W2, H2, b,
+    "The same frozen encoder answers four questions. It detects the reshuffle "
+    "at 0.99 but reads the bits at 0.55."))
+
+
+# --- 3. when it finds the TV -------------------------------------------------
+
+CURVE = {
+    "Frozen": [0.5025, 0.489, 0.4972, 0.5093, 0.4949, 0.5093, 0.4915, 0.4907,
+               0.4977, 0.5051, 0.4907, 0.5079, 0.5085, 0.5073, 0.4907],
+    "Slot": [0.5085, 0.401, 0.4943, 0.5646, 0.4139, 0.5275, 0.9384, 0.9716,
+             0.9725, 0.9849, 0.9903, 0.9943, 0.9925, 0.9943, 0.9928],
+}
+
+W3, H3 = 760, 280
+L, R, T, B = 104, 636, 28, 226
+YLO, YHI = 0.35, 1.0
+
+
+def px(i):
+    return L + (R - L) * i / (len(CURVE["Slot"]) - 1)
+
+
+def py(v):
+    return B - (B - T) * (v - YLO) / (YHI - YLO)
+
+
+c = []
+for v, lab in ((0.5, "0.5  chance"), (1.0, "1.0  ceiling")):
+    c.append(f'<line x1="{L}" y1="{py(v)}" x2="{R}" y2="{py(v)}" stroke="{RULE}" '
+             f'stroke-width="1" stroke-dasharray="3 4"/>')
+    c.append(text(L - 12, py(v) + 4, lab, 12, MUTED, anchor="end"))
+
+c.append(f'<line x1="{L}" y1="{B}" x2="{R}" y2="{B}" stroke="{RULE}" stroke-width="1"/>')
+for i in (0, 4, 9, 14):
+    c.append(text(px(i), B + 20, str(i + 1), 12, MUTED, anchor="middle"))
+c.append(text((L + R) / 2, B + 42, "epoch", 12, MUTED, anchor="middle"))
+
+for name, colour in (("Frozen", S1), ("Slot", S2)):
+    pts = " ".join(f"{px(i):.1f},{py(v):.1f}" for i, v in enumerate(CURVE[name]))
+    c.append(f'<polyline points="{pts}" fill="none" stroke="{colour}" '
+             f'stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>')
+    c.append(text(R + 10, py(CURVE[name][-1]) + 4, name, 12, colour, weight="700"))
+
+open(f"{OUT}/learning.svg", "w").write(svg(
+    W3, H3, c,
+    "Wall-stationary accuracy after each epoch. FROZEN stays at 0.5 throughout. "
+    "SLOT sits at 0.5 for six epochs, then jumps to 0.94."))
+
+print("wrote conditions.svg, detection-vs-content.svg, learning.svg")

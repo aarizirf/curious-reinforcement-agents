@@ -153,6 +153,12 @@ version is not load-bearing.
 
 ## Results
 
+![Wall-stationary accuracy after each epoch. FROZEN stays at chance throughout;
+SLOT sits at chance for six epochs, then jumps.](figures/learning.svg)
+
+![The same frozen encoder answers four questions: it detects the reshuffle at
+0.99 but reads the bits at 0.55.](figures/detection-vs-content.svg)
+
 SEED=0, `python sweep.py`:
 
 ```

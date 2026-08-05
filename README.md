@@ -13,4 +13,5 @@ what we were asking and what came back. They run on CPU in minutes.
 |---|---|---|
 | [`01-inverse-dynamics-noisy-tv`](01-inverse-dynamics-noisy-tv) | Does an inverse-dynamics encoder really ignore environment noise? | done |
 
-Written up at [aarizirfan.com/projects/curious-rl-agents](https://aarizirfan.com/projects/curious-rl-agents).
+Each folder's README is the technical record. The narrative write-ups live at
+[aarizirfan.com/projects/curious-rl-agents](https://aarizirfan.com/projects/curious-rl-agents).
